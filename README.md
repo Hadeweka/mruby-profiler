@@ -5,10 +5,12 @@ counts execution time and execution count per VM(RITE) instruction
 by CODE_FETCH_HOOK.
 mruby-profiler can customize format of result by mruby. mruby-profiler provides default formatter in mrblib/profiler.rb. Sample result shows in https://gist.github.com/miura1729/6972107. Document of customizing format don't exist yet sorry.
 
+Original version: https://github.com/miura1729/mruby-profiler
+
 ## How to use
 
 ### 1. get mruby-profiler
-  git clone https://github.com/miura1729/mruby-profiler.git
+  git clone https://github.com/Hadeweka/mruby-profiler.git
 
 ### 2. Enable #define ENABLE_DEBUG in include/mrbconf.h
 
@@ -23,7 +25,7 @@ mruby-profiler can customize format of result by mruby. mruby-profiler provides 
 # Licence
  Same mruby's licence
 
-# Author
+# Original author
 
  Miura Hideki (a plumber)
 
