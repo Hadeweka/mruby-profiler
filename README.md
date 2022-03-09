@@ -22,6 +22,11 @@ Original version: https://github.com/miura1729/mruby-profiler
 
 ### 6. Enjoy or cry
 
+# Todo list
+
+* Add Windows support
+* Testing
+
 # Licence
  Same mruby's licence
 
