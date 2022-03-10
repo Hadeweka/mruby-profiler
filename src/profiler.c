@@ -8,8 +8,14 @@
 #include "mruby/opcode.h"
 #include "mruby/string.h"
 #include "mruby/proc.h"
-#include <time.h>
+
+#ifdef _WIN32
+#include <windows.h> 
+#else
 #include <sys/time.h>
+#endif
+
+#include <time.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -63,21 +69,13 @@ static const char *
 get_class(mrb_state *mrb, struct mrb_irep *irep)
 {
   //Get root class from VM stack
-  struct RClass *c    = mrb_class(mrb, mrb->c->stack[0]);
+  struct RClass *c    = mrb_class(mrb, mrb->c->ci->stack[0]);
   struct RClass *cc   = c;
   struct RProc  *proc;
 
-  //Get class#method
-#if (MRUBY_RELEASE_MAJOR == 1 && MRUBY_RELEASE_MINOR >= 4) || MRUBY_RELEASE_MAJOR > 1
-  #if defined(MRB_METHOD_TABLE_INLINE)
-    mrb_raise(mrb, mrb->eException_class, "profiling not supported when using MRB_METHOD_TABLE_INLINE");
-  #else
-    mrb_method_t meth = mrb_method_search_vm(mrb, &cc, mrb->c->ci->mid);
-    proc = meth.proc;
-  #endif
-#else
-  proc = mrb_method_search_vm(mrb, &cc, mrb->c->ci->mid);
-#endif
+  mrb_method_t meth = mrb_method_search_vm(mrb, &cc, mrb->c->ci->mid);
+  proc = MRB_METHOD_PROC(meth);
+
   const  mrb_sym m    = mrb_intern_cstr(mrb, "to_s");
 
   //If method couldn't be retrieved or it's invalid, just use the original class
@@ -86,20 +84,12 @@ get_class(mrb_state *mrb, struct mrb_irep *irep)
     return TO_S(c);
   }
 
-
   //While the method definition doesn't match, try superclasses
   while(proc->body.irep != irep) {
     cc = cc->super;
-#if (MRUBY_RELEASE_MAJOR == 1 && MRUBY_RELEASE_MINOR >= 4) || MRUBY_RELEASE_MAJOR > 1
-    #if defined(MRB_METHOD_TABLE_INLINE)
-      mrb_raise(mrb, mrb->eException_class, "profiling not supported when using MRB_METHOD_TABLE_INLINE");
-    #else
-      meth = mrb_method_search_vm(mrb, &cc, mrb->c->ci->mid);
-      proc = meth.proc;
-    #endif
-#else
-    proc = mrb_method_search_vm(mrb, &cc, mrb->c->ci->mid);
-#endif
+    meth = mrb_method_search_vm(mrb, &cc, mrb->c->ci->mid);
+    proc = MRB_METHOD_PROC(meth);
+
     if(!cc || !proc || !mrb_respond_to(mrb, mrb_obj_value(cc), m)) {
       return TO_S(c);
     }
